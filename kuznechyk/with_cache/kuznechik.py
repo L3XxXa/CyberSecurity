@@ -23,7 +23,7 @@ pi = [0xfc, 0xee, 0xdd, 0x11, 0xcf, 0x6e, 0x31, 0x16, 0xfb, 0xc4, 0xfa, 0xda, 0x
     0x20, 0x71, 0x67, 0xa4, 0x2d, 0x2b, 0x09, 0x5b, 0xcb, 0x9b, 0x25, 0xd0, 0xbe, 0xe5, 0x6c, 0x52,
     0x59, 0xa6, 0x74, 0xd2, 0xe6, 0xf4, 0xb4, 0xc0, 0xd1, 0x66, 0xaf, 0xc2, 0x39, 0x4b, 0x63, 0xb6]
 
-pi_rev = [    0xA5, 0x2D, 0x32, 0x8F, 0x0E, 0x30, 0x38, 0xC0, 0x54, 0xE6, 0x9E, 0x39, 0x55, 0x7E, 0x52, 0x91,
+pi_rev = [0xA5, 0x2D, 0x32, 0x8F, 0x0E, 0x30, 0x38, 0xC0, 0x54, 0xE6, 0x9E, 0x39, 0x55, 0x7E, 0x52, 0x91,
     0x64, 0x03, 0x57, 0x5A, 0x1C, 0x60, 0x07, 0x18, 0x21, 0x72, 0xA8, 0xD1, 0x29, 0xC6, 0xA4, 0x3F,
     0xE0, 0x27, 0x8D, 0x0C, 0x82, 0xEA, 0xAE, 0xB4, 0x9A, 0x63, 0x49, 0xE5, 0x42, 0xE4, 0x15, 0xB7,
     0xC8, 0x06, 0x70, 0x9D, 0x41, 0x75, 0x19, 0xC9, 0xAA, 0xFC, 0x4D, 0xBF, 0x2A, 0x73, 0x84, 0xD5,
@@ -196,24 +196,35 @@ for i in range (0, len(blocks_str)):
 
 encrypted_blocks = [0] * blocks_amount
 decrypted_blocks = [0] * blocks_amount
+
+dict_enc = {}
+dict_dec = {}
 for i in range (0, blocks_amount):
-    print(f"start encrypting block {i}. Left {blocks_amount - i}")
-    start = time.time()
-    encrypted = execute(lambda x: encrypt_block(x, key), blocks[i])
-    encrypted_blocks[i] = bytes_to_hex(encrypted)
-    decrypted = execute(lambda x: decrypt_block(x, key), encrypted_blocks[i])
-    decrypted_blocks[i] = bytes_to_hex(decrypted)
-    finish = time.time()
-    left = finish - start
-    print(f"left {(left * (blocks_amount - i)) / 60}")
+    str = blocks[i][0]
+    if str in dict_enc:
+        encrypted_blocks[i] = dict_enc[str]
+    else:
+        encrypted = execute(lambda x: encrypt_block(x, key), blocks[i])
+        encrypted_blocks[i] = bytes_to_hex(encrypted)
+        dict_enc[str] = encrypted_blocks[i]
+    if encrypted_blocks[i][0] in dict_dec:
+        decrypted_blocks[i] = dict_dec[encrypted_blocks[i][0]]
+    else:
+        decrypted = execute(lambda x: decrypt_block(x, key), encrypted_blocks[i])
+        decrypted_blocks[i] = bytes_to_hex(decrypted)
+        dict_dec[encrypted_blocks[i][0]] = decrypted_blocks[i]
 
 
-print("Encrypted")
+f = open("out.txt", "w")
+f.write("Encrypted\n")
 for j in range (0, blocks_amount):
     for i in range (0, len(encrypted_blocks[j])):
-        print(encrypted_blocks[j][i])
+        f.write(encrypted_blocks[j][i].decode("utf-8"))
+        f.write("\n")
 
-print("Decrypted")
+
+f.write("Decrypted\n")
 for j in range(0, blocks_amount):
     for i in range (0, len(decrypted_blocks[j])):
-        print(decrypted_blocks[j][i])
+        f.write(decrypted_blocks[j][i].decode("utf-8"))
+        f.write("\n")
