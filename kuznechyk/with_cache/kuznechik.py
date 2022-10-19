@@ -170,11 +170,6 @@ def read_file(filename):
     str = f.read()
     return str
 
-def write_to_file(filename, data):
-    f = open(filename, 'w')
-    f.write(data)
-
-
 string = ""
 print("Read from (f)ile or (t)erminal?")
 res = input()
@@ -215,7 +210,7 @@ for i in range (0, blocks_amount):
         dict_dec[encrypted_blocks[i][0]] = decrypted_blocks[i]
 
 
-f = open("out.txt", "w")
+f = open("out_small_file.txt", "w")
 f.write("Encrypted\n")
 for j in range (0, blocks_amount):
     for i in range (0, len(encrypted_blocks[j])):
